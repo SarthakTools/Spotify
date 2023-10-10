@@ -1,4 +1,4 @@
-# Spotify
+# Spotify(Still in Development)
 ## A modern music player using Python and CustomTkitner
 
 Here to install CustomTkinter : - 
