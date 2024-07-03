@@ -1,16 +1,19 @@
 # Spotify
 ## A modern music player using Python and CustomTkitner
 
-Here to install CustomTkinter : - 
+Here to install the required modules : - 
 ```
 pip install customtkinter
 ```
+
 ```
 pip install tkinter
 ```
+
 ```
 pip install mutagen
 ```
+
 ```
 pip install pygame
 ```
