@@ -25,8 +25,6 @@ pip install pygame
 
 ![Screenshot (11)](https://github.com/SarthakTools/Spotify/assets/114976722/92c32ebc-70c9-49b2-b2e0-fc5f13259e08)
 
-![Screenshot (12)](https://github.com/SarthakTools/Spotify/assets/114976722/ffae2518-89ae-4204-a0dc-b54815d223c4)
-
 ![Screenshot (13)](https://github.com/SarthakTools/Spotify/assets/114976722/8191a6dd-84a4-425c-a947-e0c13b217a27)
 
 ![Screenshot (14)](https://github.com/SarthakTools/Spotify/assets/114976722/bc612781-42cc-429b-a4cc-9dd16c408603)
