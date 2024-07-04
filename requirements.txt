@@ -1,5 +1,6 @@
+eyed3
+mutagen
 pygame
 tkinter
 customtkinter
 PIL
-mutagen
