@@ -17,6 +17,10 @@ pip install mutagen
 ```
 pip install pygame
 ```
+
+```
+pip install eyed3
+```
 ## First UI Design : -
 
 ![First Screen](https://github.com/SarthakTools/Spotify/assets/114976722/ba07bcee-d209-42d2-a5e2-f7a69996d227)
