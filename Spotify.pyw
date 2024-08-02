@@ -7,6 +7,7 @@ from mutagen.mp3 import MP3
 from extract_info.extract_artist import get_artist
 from ctypes import windll
 from CTkMessagebox import CTkMessagebox
+from tkinter import Toplevel
 
 ct.set_default_color_theme("green")
 ct.set_appearance_mode("dark")
@@ -18,15 +19,18 @@ class IntroPage:
         self.root.geometry("550x300")
         self.root.iconbitmap("images\\spotify.ico")
         self.root.overrideredirect(True)
+
+        with open("imagename.txt", "w") as f:
+            f.write("avator.png")
         
         image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
         spotify_image = ct.CTkImage(Image.open(os.path.join(image_path, "spotify.png")), size=(90, 90))
 
-        ct.CTkLabel(self.root, text=" Spotify", image=spotify_image, compound=LEFT, font=("Poppins", 70, "bold")).pack(padx=10, pady=120, anchor="center")
+        ct.CTkLabel(self.root, text=" Spotify", image=spotify_image, compound=LEFT, font=("Poppins", 60, "bold")).pack(padx=10, pady=120, anchor="center")
     
         self.text = ct.CTkLabel(self.root, text="Please wait...The First launch of the app may take longer...", font=("IBM Plex Sans", 15))
         self.progressbar = ct.CTkProgressBar(self.root, orientation="horizontal", width=300, mode="determinate", determinate_speed=0.35, 
-                                             fg_color="white", height=10, progress_color="#1ED765", corner_radius=0)
+                                             fg_color="white", height=8, progress_color="#1ED765", corner_radius=0)
         self.progressbar.pack(side=BOTTOM, fill=X)
         self.text.pack(side=BOTTOM, anchor="center")
         
@@ -154,16 +158,101 @@ class LoginPage:
         app = Spotify(self.root)
         add_music(app)
     
+class AvatorPageTopLevel:
+    def __init__(self, master, on_close_callback=False):
+        self.on_close_callback = on_close_callback
+        self.profile_window = ct.CTkToplevel(master, fg_color="black")
+        self.profile_window.iconbitmap("images\\spotify.ico")
+        self.profile_window.title("Select your avator for profile")
+
+        toplevel_width = 750 
+        toplevel_height = 450 
+        x = (master.winfo_screenwidth() // 2) - (toplevel_width // 2)
+        y = (master.winfo_screenheight() // 2) - (toplevel_height // 2)
+        self.profile_window.geometry(f"{toplevel_width}x{toplevel_height}+{x}+{y}")
+
+        self.profile_window.resizable(False, False)
+        self.profile_window.attributes("-topmost", True)
+        self.profile_window.grab_set()
+
+        self.avator_images = []
+        image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "avator")
+
+        for i in range(1, 17):
+            self.avator_images.append(ct.CTkImage(Image.open(os.path.join(image_path, f"avator{i}.png")), size=(200, 200)))
+
+        self.current_avator_index = 0
+
+        avator_frame = ct.CTkFrame(self.profile_window, fg_color="transparent")
+        ct.CTkLabel(avator_frame, text="Select your Avator", font=("Canbera", 45, "bold"), text_color="white").pack(side=TOP, fill=X, anchor="nw", padx=0, pady=10)
+
+        avator1 = self.avator_images[0]
+        avator2 = self.avator_images[1]
+        avator3 = self.avator_images[2]
+        avator4 = self.avator_images[3]
+        avator5 = self.avator_images[4]
+        avator6 = self.avator_images[5]
+        avator7 = self.avator_images[6]
+
+        icon_right = ct.CTkImage(Image.open(os.path.join(image_path, "right.png")), size=(50, 50))
+        icon_left = ct.CTkImage(Image.open(os.path.join(image_path, "left.png")), size=(50, 50))
+
+        self.left_button = ct.CTkButton(avator_frame, text="", image=icon_left, fg_color="transparent", width=0, hover_color="#222", command=self.change_avator_left)
+        self.left_button.pack(side=LEFT, padx=5)
+        self.avator = ct.CTkButton(avator_frame, text="", image=avator1, width=1, height=1, fg_color="transparent", hover_color="#000", corner_radius=50)
+        self.avator.pack(side=LEFT, anchor="center", padx=120)
+        self.right_button = ct.CTkButton(avator_frame, text="", image=icon_right, fg_color="transparent", width=0, hover_color="#222", command=self.change_avator_right)
+        self.right_button.pack(side=RIGHT, padx=5)
+
+        self.progressbar = ct.CTkProgressBar(self.profile_window, orientation="horizontal", width=300, mode="determinate", determinate_speed=0.9, fg_color="#333", height=5, progress_color="#1ED765", corner_radius=0)
+        self.progressbar.pack(side=BOTTOM, fill=X)
+        self.progressbar.set(0)
+
+        self.select = ct.CTkButton(self.profile_window, text="Select", font=("monospace", 23, "normal"), height=50, width=150, command=self.select_avator)
+        self.select.pack(side=BOTTOM, anchor="center", pady=20)
+
+        avator_frame.pack(side=TOP, fill=X, padx=80, pady=30, ipadx=50, ipady=20)
+
+        self.profile_window.mainloop()
+
+    def select_avator(self):
+        self.avator.configure(fg_color="#222", hover_color="#222")
+        image = f"avator{self.current_avator_index+1}.png"
+        with open("imagename.txt", "w") as f:
+            f.write(image)
+        self.select.configure(text=" Processing...", state="disabled")
+        self.progressbar.start()
+        self.profile_window.after(1000, self.loading)
+
+    def loading(self):
+        time.sleep(0.5)
+        self.profile_window.after(0, self.close_window)
+
+    def close_window(self):
+        self.profile_window.destroy()
+        if self.on_close_callback():
+            self.on_close_callback()
+
+    def change_avator_right(self):
+        self.avator.configure(fg_color="transparent", hover_color="black")
+        self.current_avator_index = (self.current_avator_index + 1) % len(self.avator_images)
+        self.avator.configure(image=self.avator_images[self.current_avator_index])
+
+    def change_avator_left(self):
+        self.avator.configure(fg_color="transparent", hover_color="black")
+        self.current_avator_index = (self.current_avator_index - 1) % len(self.avator_images)
+        self.avator.configure(image=self.avator_images[self.current_avator_index])
+
 class Spotify:
     def __init__(self, root):
         self.root = root
-
         self.root.title("Spotify")
         self.root.geometry("1300x700")
         self.root.minsize(1300, 700)
         self.bg_color = "#202124"
         self.root.configure(fg_color=self.bg_color)
         self.root.resizable(True, True)
+        self.root.iconbitmap("images\\spotify.ico")
         # pywinstyles.apply_style(self, style="acrylic")
 
         # Load images from the images folder
@@ -183,9 +272,13 @@ class Spotify:
         self.favourite_img3 = ct.CTkImage(Image.open(os.path.join(image_path, "star.png")), size=(28, 28))
         self.eyes_icon_open = ct.CTkImage(Image.open(os.path.join(image_path, "eyes_open.png")), size=(20, 20))
         self.eyes_icon_closed =  ct.CTkImage(Image.open(os.path.join(image_path, "eyes_closed.png")), size=(20, 20))
-        self.profile_img = ct.CTkImage(Image.open(os.path.join(image_path, "avator2.png")), size=(35, 35)) # avator profile
-        self.avator_image = ct.CTkImage(Image.open(os.path.join(image_path, "avator2.png")), size=(155, 155)) # avator profile
 
+        self.image_path_avatar = os.path.join(os.path.dirname(os.path.realpath(__file__)), "avator")
+        with open("imagename.txt", "r") as f:
+            profile_image = f.read()
+        self.profile_img = ct.CTkImage(Image.open(os.path.join(self.image_path_avatar, profile_image)), size=(35, 35)) # avator profile
+        self.avator_image = ct.CTkImage(Image.open(os.path.join(self.image_path_avatar, profile_image)), size=(155, 155)) # avator profile
+        
         self.nav_frame = ct.CTkFrame(self.root, fg_color="#141517")
 
         self.spotify_label = ct.CTkLabel(self.nav_frame, text=" Spotify      ", text_color="white", image=self.spotify_img, compound=LEFT,
@@ -329,7 +422,7 @@ class Spotify:
         # settings frame code ##################################
 
         self.profile_frame = ct.CTkFrame(self.settings_frame, fg_color=self.bg_color)
-        self.profile_button = ct.CTkButton(self.profile_frame, text="", width=0, corner_radius=0, fg_color=self.bg_color, hover_color="#333", image=self.profile_img)
+        self.profile_button = ct.CTkButton(self.profile_frame, text="", width=0, corner_radius=0, fg_color=self.bg_color, hover_color="#333", image=self.profile_img, command=self.changeProfilePhoto)
         self.profile_button.pack(side=RIGHT)
 
         self.username = ct.CTkLabel(self.profile_frame, text="Username", font=("IBM Plex Sans", 25, "bold"))
@@ -362,6 +455,9 @@ class Spotify:
 
             email_value = data_dict.get("email")
             password_value = data_dict.get("password")
+
+            name = data_dict.get("name")
+            self.username.configure(text=name)
 
             self.email = data_dict.get("email") if email_value else "username@spotify.com"
             self.password = data_dict.get("password") if password_value else "12345678"
@@ -406,9 +502,6 @@ class Spotify:
         self.about_frame.pack(side=TOP, fill=BOTH, padx=15, pady=5, ipady=20)
 
         self.settings_control_frame.pack(side=TOP, fill=BOTH, expand=True, padx=5, pady=10)
-
-        # Focus the home tab first
-        self.select_frame_name("home")
 
         self.music_playing = None
         self.frames = {}  # Dictionary to store frames for each tab
@@ -514,6 +607,9 @@ class Spotify:
         self.favourites = []
         self.previous_song = []
 
+        # Focus the home tab first
+        self.select_frame_name("home")
+
         self.position = 0
         self.loop = False
         self.music_scale = False
@@ -526,6 +622,16 @@ class Spotify:
         for item in intital_songs:
             ct.CTkButton(self.searching_frame, text=f" {item}", width=20, font=("Poppins", 21, "normal"), command=lambda item=item: self.on_button_click(item), 
                         anchor="w", corner_radius=0, fg_color="#333", text_color="#c7c3c3", image=self.rise_img2, hover_color="#444").pack(fill=X, pady=0, ipady=10, padx=5)
+
+    def changeProfilePhoto(self):
+        def callBack():
+            with open("imagename.txt", "r") as f:
+                image_name = f.read()
+                profile_img = ct.CTkImage(Image.open(os.path.join(self.image_path_avatar, image_name)), size=((35, 35)))
+                avator_img = ct.CTkImage(Image.open(os.path.join(self.image_path_avatar, image_name)), size=((155, 155)))
+                self.profile_button.configure(image=profile_img)
+                self.photo_frame.configure(image=avator_img)
+        AvatorPageTopLevel(self.root, on_close_callback=callBack)
 
     def deleteAccount(self):
         if os.path.exists("data.txt"):
@@ -729,11 +835,11 @@ class Spotify:
     def spacebar_event(self, event):
         if self.music_playing:
             self.stop_music()
-            self.bind("<space>", self.spacebar_event_2)
+            self.root.bind("<space>", self.spacebar_event_2)
 
     def spacebar_event_2(self, event):
         self.resume_music()
-        self.bind("<space>", self.spacebar_event)
+        self.root.bind("<space>", self.spacebar_event)
 
     def slide_song(self):
         # if self.music_playing:
@@ -965,8 +1071,11 @@ if __name__ == "__main__":
     root = ct.CTk()
 
     if os.path.exists("data.txt"):
-        app = Spotify(root)
-        add_music(app)
+        if os.path.exists("imagename.txt"):    
+            app = Spotify(root)
+            add_music(app)
+        else:
+            IntroPage(root)
     else:
         IntroPage(root)
 
